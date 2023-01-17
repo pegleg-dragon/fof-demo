@@ -7,6 +7,7 @@ Server runs at http://[::]:8000/
 <html>
 <head>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <script src="poisson_disc.js"></script> 
 </head>
 <body>
 	<h1>Field of Flowers</h1>
@@ -15,10 +16,10 @@ Server runs at http://[::]:8000/
 	</p>
 
     <script>
-    const SCREEN_WIDTH = 800
-    const SCREEN_HEIGHT = 600
+    const SCREEN_WIDTH = 1200
+    const SCREEN_HEIGHT = 800
 
-    const NUM_FLOWERS = 100;
+    const NUM_FLOWERS = 150;
     const WAVE_MAX_RADIUS = 1200;
     const WAVE_THICKNESS = 200;
     const WAVE_SPEED = 0.4; // pixels per millisecond
@@ -66,12 +67,15 @@ Server runs at http://[::]:8000/
 
     function place_flowers (scene)
     {
-    	// TODO: replace this with poisson disc sampling
     	flower_image_handles = ['flower1', 'flower2', 'flower3']
-    	for (let i = 0; i < NUM_FLOWERS; i++) {
-    	  var x = Math.random() * SCREEN_WIDTH;
-    	  var y = Math.random() * SCREEN_HEIGHT;
-    	  var flower_type = flower_image_handles[Math.floor(Math.random() * flower_image_handles.length)];
+    	flower_locations = poisson_disc_sample(SCREEN_WIDTH, SCREEN_HEIGHT, NUM_FLOWERS);
+    	console.log("Selected " + flower_locations.length + " flower locations.");
+    	for (let i = 0; i < flower_locations.length; i++) {
+    	  //var x = Math.random() * SCREEN_WIDTH;
+    	  //var y = Math.random() * SCREEN_HEIGHT;
+    	  let x = flower_locations[i].x;
+    	  let y = flower_locations[i].y;
+    	  let flower_type = flower_image_handles[Math.floor(Math.random() * flower_image_handles.length)];
     	  flower = scene.add.image(x, y, flower_type);
 		  flowers.add(flower)
 		} 
@@ -165,13 +169,6 @@ Server runs at http://[::]:8000/
     		flower.setTint(color.color);
     	}
     }
-
-    function distance(obj1, obj2) {
-    	var dx = obj2.x - obj1.x;
-    	var dy = obj2.y - obj1.y;
-    	return Math.sqrt(dx*dx + dy*dy)
-    }
-
     </script>
 
 </body>
