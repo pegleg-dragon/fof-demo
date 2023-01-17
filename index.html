@@ -22,7 +22,7 @@ Server runs at http://[::]:8000/
 
     const NUM_FLOWERS = 150;
     const WAVE_MAX_RADIUS = 1200;
-    const WAVE_THICKNESS = 200;
+    const WAVE_THICKNESS = 300;
     const WAVE_SPEED = 0.4; // pixels per millisecond
 
 
@@ -163,8 +163,13 @@ Server runs at http://[::]:8000/
     			continue
     		}
     		// Hue will be determined by combining hues for all waves this flower is in.
-    		let wave_hues = waves_this_flower_is_in.map(wave => wave.hue);
-    		let hue = maximally_distant_hue(wave_hues);
+    		let hue = null;
+    		if (waves_this_flower_is_in.length == 1) {
+    			hue = waves_this_flower_is_in[0].hue;
+    		} else {
+	    		let wave_hues = waves_this_flower_is_in.map(wave => wave.hue);
+	    		hue = maximally_distant_hue(wave_hues);
+    		}
     		// saturate according to distance from nearest wave ridge
     		let sat = 1 - (min_distance_from_wave_ridge / (WAVE_THICKNESS / 2));
     		let bri = 1.0;
