@@ -8,6 +8,7 @@ Server runs at http://[::]:8000/
 <head>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
     <script src="poisson_disc.js"></script> 
+    <script src="color.js"></script> 
 </head>
 <body>
 	<h1>Field of Flowers</h1>
@@ -144,27 +145,30 @@ Server runs at http://[::]:8000/
     function flowers_react()
     {
     	for (const flower of flowers) {
-    		var min_distance_from_wave_ridge = SCREEN_WIDTH;
-    		var closest_wave;
+    		let min_distance_from_wave_ridge = SCREEN_WIDTH;
+    		let waves_this_flower_is_in = [];
     		// TODO: make this some kind of functional list comprehension
     		for (const wave of waves) {
-    			var dist_from_center = distance(flower, wave)
-    			var dist_from_ridge = Math.abs(dist_from_center - wave.r);
-    			if (dist_from_ridge < min_distance_from_wave_ridge) {
-    				min_distance_from_wave_ridge = dist_from_ridge;
-    				closest_wave = wave;
+    			let dist_from_wave_center = distance(flower, wave)
+    			var dist_from_wave_ridge = Math.abs(dist_from_wave_center - wave.r);
+    			if (dist_from_wave_ridge < WAVE_THICKNESS / 2) {
+    				waves_this_flower_is_in.push(wave);
+    				min_distance_from_wave_ridge = Math.min(
+    					min_distance_from_wave_ridge, dist_from_wave_ridge);
     			}
     		}
-    		if (min_distance_from_wave_ridge > WAVE_THICKNESS / 2) {
-    			// flower is not within any wave
+    		if (waves_this_flower_is_in.length == 0) {
+    			// flowers not in any wave are white.
     			flower.setTint(0xffffff)
     			continue
     		}
-    		// saturate according to distance from wave ridge
-    		var sat = 1 - (min_distance_from_wave_ridge / (WAVE_THICKNESS / 2));
-    		var bri = 1.0;
-    		var hue = closest_wave.hue;
-    		var color = new Phaser.Display.Color();
+    		// Hue will be determined by combining hues for all waves this flower is in.
+    		let wave_hues = waves_this_flower_is_in.map(wave => wave.hue);
+    		let hue = maximally_distant_hue(wave_hues);
+    		// saturate according to distance from nearest wave ridge
+    		let sat = 1 - (min_distance_from_wave_ridge / (WAVE_THICKNESS / 2));
+    		let bri = 1.0;
+    		let color = new Phaser.Display.Color();
     		color.setFromHSV(hue, sat, bri)
     		flower.setTint(color.color);
     	}
